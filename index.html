@@ -128,7 +128,7 @@
     <button class="main-btn" id="submitBtn">Записаться за 45 BYN (12:00)</button>
   </div>
 
-  <script>
+<script>
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
@@ -140,6 +140,12 @@
       time: "12:00"
     };
 
+    function updateMainButton() {
+      // Настраиваем системную кнопку Telegram внизу экрана
+      tg.MainButton.setText(`Записаться за ${state.price} (${state.time})`);
+      tg.MainButton.show();
+    }
+
     function setupSelector(containerId, callback) {
       const container = document.getElementById(containerId);
       container.addEventListener('click', (e) => {
@@ -148,7 +154,7 @@
         Array.from(container.children).forEach(c => c.classList.remove('active'));
         item.classList.add('active');
         callback(item);
-        updateButton();
+        updateMainButton();
       });
     }
 
@@ -165,13 +171,18 @@
       state.time = el.innerText.trim();
     });
 
-    function updateButton() {
-      document.getElementById('submitBtn').innerText = `Записаться за ${state.price} (${state.time})`;
-    }
+    // Обработка клика по системной кнопке Telegram
+    tg.MainButton.onClick(() => {
+      tg.sendData(JSON.stringify(state));
+    });
 
+    // Также оставляем обработку клика по синей кнопке на самой странице для надежности
     document.getElementById('submitBtn').addEventListener('click', () => {
       tg.sendData(JSON.stringify(state));
     });
+
+    // Показываем кнопку сразу при открытии
+    updateMainButton();
   </script>
 </body>
 </html>
